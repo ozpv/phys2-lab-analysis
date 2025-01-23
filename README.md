@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# template
-fullstack rust template
-=======
 # Here's what the tech stack looks like:
 
 Frontend: Rust, Leptos/WebAssembly
@@ -24,4 +20,3 @@ Scripting: Python
 
 ## Methodology
 Backend executes python scripts for plotting and cv, performing the remaining calculations in rust
->>>>>>> 640dd310a71c12cafab45e721d4cd2d17ae7da56
