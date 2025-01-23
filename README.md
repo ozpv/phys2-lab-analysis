@@ -1,0 +1,2 @@
+# template
+fullstack rust template
