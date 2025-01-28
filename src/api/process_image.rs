@@ -99,7 +99,7 @@ impl ImageProcessor {
     }
 
     async fn extract_data(mut self) -> Result<Self, ImageProcessorError> {
-        crate::utils::validate_path(&self.image_path)
+        crate::core::utils::validate_path(&self.image_path)
             .map_err(|_| ImageProcessorError::InvalidPath)?;
 
         self.output = None;

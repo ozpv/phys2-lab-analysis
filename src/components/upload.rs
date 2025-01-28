@@ -26,7 +26,7 @@ enum EncodeAsWebPError {
 
 #[server]
 pub async fn encode_as_webp(file_path: PathBuf) -> Result<(), ServerFnError> {
-    crate::utils::validate_path(&file_path).map_err(|_| EncodeAsWebPError::InvalidPath)?;
+    crate::core::utils::validate_path(&file_path).map_err(|_| EncodeAsWebPError::InvalidPath)?;
 
     let stem = file_path.file_stem().ok_or_else(|| {
         expect_context::<ResponseOptions>().set_status(StatusCode::BAD_REQUEST);

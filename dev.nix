@@ -12,6 +12,7 @@ pkgs.mkShell {
     cargo-generate
     tailwindcss
     binaryen
+	fontconfig
     postgresql
     sqlx-cli
     pkg-config

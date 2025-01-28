@@ -1,10 +1,10 @@
+#[cfg(feature = "ssr")]
+pub mod api;
 pub mod app;
-pub mod process_image;
+pub mod components;
 #[cfg(feature = "ssr")]
-pub mod timeout_command;
-pub mod upload;
-#[cfg(feature = "ssr")]
-pub mod utils;
+pub mod core;
+pub mod pages;
 
 #[cfg(feature = "hydrate")]
 #[wasm_bindgen::prelude::wasm_bindgen]

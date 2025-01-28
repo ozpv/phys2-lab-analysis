@@ -5,7 +5,7 @@ use leptos_router::{
     path,
 };
 
-use crate::upload::ImageUploadForm;
+use crate::components::upload::ImageUploadForm;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
