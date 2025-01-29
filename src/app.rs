@@ -5,6 +5,8 @@ use leptos_router::{
     path,
 };
 
+use crate::components::camera::CameraModal;
+use crate::components::footer::Footer;
 use crate::components::upload::ImageUploadForm;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -39,6 +41,7 @@ pub fn App() -> impl IntoView {
             <FlatRoutes fallback=NotFound>
                 <Route path=path!("") view=HomePage/>
             </FlatRoutes>
+            <Footer/>
         </Router>
     }
 }
@@ -54,8 +57,9 @@ pub fn NotFound() -> impl IntoView {
 fn HomePage() -> impl IntoView {
     view! {
         <main>
-            <h1>"This is a template"</h1>
-            <ImageUploadForm />
+            <h1>"Welcome"</h1>
+            <ImageUploadForm/>
+            <CameraModal/>
         </main>
     }
 }
