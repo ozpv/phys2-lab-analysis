@@ -2,7 +2,7 @@ use leptos::{html, prelude::*};
 use std::sync::Arc;
 use web_sys::MouseEvent;
 
-use crate::components::buttons::{Button, ButtonSize, ButtonVariant};
+use crate::components::buttons::{Button, ButtonSize};
 
 /// spawns a floating window above all other elements
 #[component]
@@ -51,7 +51,7 @@ pub fn DialogWindow(
             {
                 if close_button {
                     // TODO: Add an X icon here
-                    view! { <Button variant=ButtonVariant::Outlined size={ButtonSize::Large} {..} on:click=update_status>"Close"</Button> }.into_any()
+                    view! { <Button size={ButtonSize::Medium} {..} on:click=update_status>"Close"</Button> }.into_any()
                 } else {
                     ().into_any()
                 }

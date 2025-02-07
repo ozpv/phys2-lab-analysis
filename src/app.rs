@@ -4,12 +4,9 @@ use leptos_router::{
     components::{FlatRoutes, Route, Router},
     path,
 };
-use web_sys::console::log_1;
 
-use crate::components::camera::CameraModal;
-use crate::components::dialog::DialogWindow;
 use crate::components::footer::Footer;
-use crate::components::upload::ImageUploadForm;
+use crate::pages::home::HomePage;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -52,21 +49,5 @@ pub fn App() -> impl IntoView {
 pub fn NotFound() -> impl IntoView {
     view! {
         <h1>"404 Not Found"</h1>
-    }
-}
-/// Renders the home page of your application.
-#[component]
-fn HomePage() -> impl IntoView {
-    view! {
-        <main>
-            <h1>"Welcome"</h1>
-            <ImageUploadForm/>
-            <CameraModal/>
-            <DialogWindow title="Hello, World!" on_close=&|| {
-                log_1(&"Hello from closing".into());
-            }>
-                "Inner"
-            </DialogWindow>
-        </main>
     }
 }

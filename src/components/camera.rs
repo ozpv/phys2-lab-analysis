@@ -2,6 +2,8 @@ use leptos::{html, leptos_dom::helpers, prelude::*};
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 use web_sys::{CanvasRenderingContext2d, MediaStreamConstraints, MouseEvent};
 
+use crate::components::buttons::{Button, ButtonSize, ButtonVariant};
+
 #[component]
 pub fn CameraModal() -> impl IntoView {
     let video = NodeRef::<html::Video>::new();
@@ -35,7 +37,10 @@ pub fn CameraModal() -> impl IntoView {
 
         let video = video.get().unwrap();
 
-        let (w, h) = (video.video_width() as f64, video.video_height() as f64);
+        let (w, h) = (
+            f64::from(video.video_width()),
+            f64::from(video.video_height()),
+        );
 
         let () = canvas
             .get()
@@ -61,7 +66,7 @@ pub fn CameraModal() -> impl IntoView {
     view! {
         <video width="768" height="768" autoplay node_ref=video />
         <canvas class="hidden" width="768" height="768" node_ref=canvas />
-        <button class="bg-gray-900 rounded-lg p-5" on:click=capture>"Capture"</button>
+        <Button variant=ButtonVariant::Outlined size={ButtonSize::Large} {..} on:click=capture>"Capture"</Button>
         <img alt="captured photo will appear here" node_ref=image />
     }
 }

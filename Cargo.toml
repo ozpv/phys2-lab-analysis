@@ -37,7 +37,6 @@ plotters-canvas = "0.3.0"
 leptos_icons = "0.5.0"
 web-sys = { version = "0.3.77", features = ["CanvasRenderingContext2d", "MediaDevices", "MediaStream", "MediaStreamConstraints", "Navigator"] }
 icondata = "0.5.0"
-const_format = "0.2.34"
 
 [features]
 hydrate = ["leptos/hydrate"]

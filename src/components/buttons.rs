@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_icons::Icon;
 
 pub enum ButtonSize {
     Small,
@@ -46,7 +47,7 @@ impl ButtonIcon {
     // TODO: add icon view
     fn view_left(self) -> impl IntoView {
         if let Self::Left(icon) = self {
-            ().into_any()
+            view! { <Icon icon /> }.into_any()
         } else {
             ().into_any()
         }
@@ -54,10 +55,25 @@ impl ButtonIcon {
 
     fn view_right(self) -> impl IntoView {
         if let Self::Right(icon) = self {
-            ().into_any()
+            view! { <Icon icon /> }.into_any()
         } else {
             ().into_any()
         }
+    }
+}
+
+pub trait IntoButtonIcon {
+    fn into_left(self) -> ButtonIcon;
+    fn into_right(self) -> ButtonIcon;
+}
+
+impl IntoButtonIcon for icondata::Icon {
+    fn into_left(self) -> ButtonIcon {
+        ButtonIcon::Left(self)
+    }
+
+    fn into_right(self) -> ButtonIcon {
+        ButtonIcon::Left(self)
     }
 }
 

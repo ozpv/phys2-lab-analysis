@@ -22,7 +22,7 @@ pub fn ImageUploadForm() -> impl IntoView {
     view! {
         <form on:submit=on_click>
             <input type="file" name="file-upload" />
-            <Button variant={ButtonVariant::Secondary} {..} type="submit">"Upload"</Button>
+            <Button {..} type="submit">"Upload"</Button>
         </form>
     }
 }
