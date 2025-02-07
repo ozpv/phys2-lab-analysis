@@ -4,8 +4,10 @@ use leptos_router::{
     components::{FlatRoutes, Route, Router},
     path,
 };
+use web_sys::console::log_1;
 
 use crate::components::camera::CameraModal;
+use crate::components::dialog::DialogWindow;
 use crate::components::footer::Footer;
 use crate::components::upload::ImageUploadForm;
 
@@ -60,6 +62,11 @@ fn HomePage() -> impl IntoView {
             <h1>"Welcome"</h1>
             <ImageUploadForm/>
             <CameraModal/>
+            <DialogWindow title="Hello, World!" on_close=&|| {
+                log_1(&"Hello from closing".into());
+            }>
+                "Inner"
+            </DialogWindow>
         </main>
     }
 }

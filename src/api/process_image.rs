@@ -1,8 +1,9 @@
+use leptos::prelude::*;
 use serde::Deserialize;
 use std::collections::HashMap;
 
 #[cfg(feature = "ssr")]
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 #[cfg(feature = "ssr")]
 use std::process::Output;
 #[cfg(feature = "ssr")]
@@ -119,4 +120,38 @@ impl TryInto<TableData> for ImageProcessor {
             Err(Self::Error::NoOutput)
         }
     }
+}
+
+/// use these errors internally
+#[cfg(feature = "ssr")]
+#[derive(Debug, Error)]
+enum EncodeAsWebPError {
+    #[error("File path is missing stem")]
+    MissingStem,
+    #[error("Invalid file path")]
+    InvalidPath,
+}
+
+#[cfg(feature = "ssr")]
+pub async fn encode_as_webp(file_path: PathBuf) -> Result<(), ServerFnError> {
+    crate::core::utils::validate_path(&file_path).map_err(|_| EncodeAsWebPError::InvalidPath)?;
+
+    let stem = file_path
+        .file_stem()
+        .ok_or_else(|| EncodeAsWebPError::MissingStem)?;
+
+    let parent = file_path.parent();
+
+    let new_path = PathBuf::new()
+        .join(parent.unwrap_or_else(|| Path::new("")))
+        .join(stem)
+        .with_extension("webp");
+
+    tracing::info!(
+        "re-writing {} to {}",
+        file_path.display(),
+        new_path.display()
+    );
+
+    Ok(())
 }
