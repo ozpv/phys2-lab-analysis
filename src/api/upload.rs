@@ -6,7 +6,9 @@ use http::{header::CONTENT_LENGTH, HeaderMap, StatusCode};
 #[cfg(feature = "ssr")]
 use leptos_axum::{extract, ResponseOptions};
 #[cfg(feature = "ssr")]
-use std::path::{Path, PathBuf};
+use rand::distr::{Alphanumeric, SampleString};
+#[cfg(feature = "ssr")]
+use std::path::PathBuf;
 #[cfg(feature = "ssr")]
 use thiserror::Error;
 #[cfg(feature = "ssr")]
@@ -25,36 +27,38 @@ enum ImageUploadError {
     Internal,
 }
 
-#[server(input = MultipartFormData)]
+#[server(prefix = "/api", endpoint = "upload_image", input = MultipartFormData)]
 pub async fn upload_image(data: MultipartData) -> Result<(), ServerFnError> {
-    let mut data = data.into_inner().ok_or_else(|| ImageUploadError::Client)?;
+    let mut data = data.into_inner().ok_or(ImageUploadError::Client)?;
+
+    // check if the file is a valid size and format
+    let headers = extract::<HeaderMap>()
+        .await
+        .map_err(|_| ImageUploadError::MissingHeaders)?;
+
+    let content_length = headers
+        .get(CONTENT_LENGTH)
+        .ok_or(ImageUploadError::MissingHeaders)
+        .inspect_err(|_| {
+            expect_context::<ResponseOptions>().set_status(StatusCode::LENGTH_REQUIRED);
+        })?
+        .to_str()
+        .ok()
+        .and_then(|r| r.parse::<u64>().ok())
+        .ok_or(ImageUploadError::InvalidFile)
+        .inspect_err(|_| {
+            expect_context::<ResponseOptions>().set_status(StatusCode::BAD_REQUEST);
+        })?;
+
+    if content_length >= 10_000_000 {
+        expect_context::<ResponseOptions>().set_status(StatusCode::BAD_REQUEST);
+        return Err(ImageUploadError::InvalidFile.into());
+    }
 
     while let Ok(Some(mut field)) = data.next_field().await {
-        // check if the file is a valid size and format
-        let headers = extract::<HeaderMap>()
-            .await
-            .map_err(|_| ImageUploadError::MissingHeaders)?;
+        let content_type = field.content_type();
 
-        // check if file is an image and 10MB or under
-        if headers
-            .get(CONTENT_LENGTH)
-            .ok_or_else(|| {
-                expect_context::<ResponseOptions>().set_status(StatusCode::LENGTH_REQUIRED);
-                ImageUploadError::MissingHeaders
-            })
-            .and_then(|length| {
-                // error by setting content length above max
-                Ok(length
-                    .to_str()
-                    .ok()
-                    .and_then(|s| s.parse::<u64>().ok())
-                    .unwrap_or(10000001))
-            })?
-            >= 10000000
-            || !field
-                .content_type()
-                .is_some_and(|t| t.to_string().starts_with("image"))
-        {
+        if content_type.is_none_or(|s| !s.to_string().starts_with("image")) {
             expect_context::<ResponseOptions>().set_status(StatusCode::BAD_REQUEST);
             return Err(ImageUploadError::InvalidFile.into());
         }
@@ -62,7 +66,10 @@ pub async fn upload_image(data: MultipartData) -> Result<(), ServerFnError> {
         // get path to write to
         // is LEPTOS_SITE_ROOT by default
         let site_root = expect_context::<LeptosOptions>().site_root;
-        let file_name = field.file_name().unwrap_or("some_file").to_string();
+        let file_name = field.file_name().map_or_else(
+            || Alphanumeric.sample_string(&mut rand::rng(), 32),
+            ToString::to_string,
+        );
         let path = PathBuf::new().join(site_root.to_string()).join(file_name);
 
         tracing::info!("Uploading file {}", path.display());
@@ -82,4 +89,87 @@ pub async fn upload_image(data: MultipartData) -> Result<(), ServerFnError> {
     }
 
     Ok(())
+}
+
+#[cfg(all(test, feature = "ssr"))]
+mod test {
+    use crate::routes::app;
+    use axum::{
+        body::Body,
+        http::{header, Request, StatusCode},
+    };
+    use futures::{stream, StreamExt};
+    use tower::ServiceExt;
+
+    #[inline]
+    fn test_multipart_body() -> Body {
+        Body::from(
+            r#"------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.png"
+Content-Type: image/png
+
+iVBORw0KGgoAAAANSUhEUgAAAAUA
+----WebKitFormBoundary7MA4YWxkTrZu0gW--
+"#,
+        )
+    }
+
+    #[tokio::test]
+    async fn upload_image_missing_headers() {
+        let app = app();
+
+        let bad_content_length = Request::builder()
+            .method("POST")
+            .uri("/api/upload_image")
+            .header(
+                header::CONTENT_TYPE,
+                "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
+            )
+            .body(test_multipart_body())
+            .unwrap();
+
+        let res = app.oneshot(bad_content_length).await.unwrap();
+
+        assert_eq!(res.status(), StatusCode::LENGTH_REQUIRED);
+    }
+
+    #[tokio::test]
+    async fn upload_image_bad_content_length() {
+        let app = app();
+
+        let too_long = Request::builder()
+            .method("POST")
+            .uri("/api/upload_image")
+            .header(
+                header::CONTENT_TYPE,
+                "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
+            )
+            .header(header::CONTENT_LENGTH, "10000000")
+            .body(test_multipart_body())
+            .unwrap();
+
+        let too_short = Request::builder()
+            .method("POST")
+            .uri("/api/upload_image")
+            .header(
+                header::CONTENT_TYPE,
+                "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
+            )
+            .header(header::CONTENT_LENGTH, "-1")
+            .body(test_multipart_body())
+            .unwrap();
+
+        let mut s = app.call_all(stream::iter([too_long, too_short]));
+
+        while let Some(Ok(res)) = &mut s.next().await {
+            assert_eq!(res.status(), StatusCode::BAD_REQUEST);
+        }
+    }
+
+    #[ignore]
+    #[tokio::test]
+    async fn upload_image_bad_content_type() {
+        // trust that this works
+        todo!()
+    }
 }

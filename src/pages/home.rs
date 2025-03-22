@@ -1,8 +1,9 @@
 use leptos::prelude::*;
 
-use crate::components::buttons::{Button, ButtonSize, ButtonVariant, IntoButtonIcon};
 use crate::components::camera::CameraModal;
 use crate::components::dialog::DialogWindow;
+use crate::components::graph::Graph;
+use crate::components::table::Table;
 use crate::components::upload::ImageUploadForm;
 
 /// Renders the home page of your application.
@@ -13,9 +14,14 @@ pub fn HomePage() -> impl IntoView {
             <ImageUploadForm/>
             <CameraModal/>
             <DialogWindow title="Hello, World!">
-                "Inner"
+                "Inner body"
             </DialogWindow>
-            <Button variant=ButtonVariant::Secondary size=ButtonSize::Medium icon=icondata::BiGraphql.into_left()>"Hello"</Button>
+            <div class="container mx-auto">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <Table/>
+                    <Graph/>
+                </div>
+            </div>
         </main>
     }
 }

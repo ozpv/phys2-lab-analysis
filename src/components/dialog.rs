@@ -42,21 +42,28 @@ pub fn DialogWindow(
     let status = move || !binding.get();
 
     view! {
-        <div
-            tabindex="-1"
-            class="fixed bg-crust bg-opacity-70 max-h-full w-full h-full top-0 left-0 z-50 overflow-x-hidden overflow-y-auto p-4 md:inset-0"
+        <div tabindex="-1"
+            class="fixed inset-0 flex flex-row justify-center items-center bg-crust bg-opacity-60 max-h-full
+                w-full h-full z-50 overflow-x-hidden overflow-y-auto"
             class:hidden=status
             node_ref=outer_dialog
         >
-            {
-                if close_button {
-                    // TODO: Add an X icon here
-                    view! { <Button size={ButtonSize::Medium} {..} on:click=update_status>"Close"</Button> }.into_any()
-                } else {
-                    ().into_any()
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl text-text">{title}</h2>
+            </div>
+            <div class="mb-4">
+                {children()}
+            </div>
+            <div class="flex justify-end">
+                {
+                    if close_button {
+                        // TODO: Add an X icon here
+                        view! { <Button size={ButtonSize::Medium} {..} on:click=update_status>"Close"</Button> }.into_any()
+                    } else {
+                        ().into_any()
+                    }
                 }
-            }
-            {children()}
+            </div>
         </div>
     }
 }

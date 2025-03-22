@@ -7,6 +7,7 @@ pkgs.mkShell {
 	clippy
 	rustfmt
 	lld
+    fontconfig
     cargo-binutils
     cargo-leptos
     cargo-generate

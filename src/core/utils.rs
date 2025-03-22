@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::Path;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -9,8 +9,10 @@ pub enum PathError {
     NotFound,
 }
 
-#[inline(always)]
-pub fn validate_path(path: &PathBuf) -> Result<(), PathError> {
+#[inline]
+pub fn validate_path(path: impl AsRef<Path>) -> Result<(), PathError> {
+    let path = path.as_ref();
+
     if !path.exists() {
         return Err(PathError::NotFound);
     }

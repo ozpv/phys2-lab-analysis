@@ -1,8 +1,7 @@
 use leptos::{html, leptos_dom::helpers, prelude::*};
+use leptos_icons::Icon;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 use web_sys::{CanvasRenderingContext2d, MediaStreamConstraints, MouseEvent};
-
-use crate::components::buttons::{Button, ButtonSize, ButtonVariant};
 
 #[component]
 pub fn CameraModal() -> impl IntoView {
@@ -64,9 +63,17 @@ pub fn CameraModal() -> impl IntoView {
     };
 
     view! {
-        <video width="768" height="768" autoplay node_ref=video />
+        <div class="bg-base p-6 rounded-lg shadow-lg">
+            <div class="flex items-center justify-center relative">
+                <video class="bg-base rounded-lg" autoplay node_ref=video />
+                <button class="bg-base text-text p-3 rounded-full shadow transition duration-200 hover:bg-mantle"
+                    on:click=capture
+                >
+                    <Icon icon={icondata::LuCamera} width="36" height="36"/>
+                </button>
+            </div>
+        </div>
         <canvas class="hidden" width="768" height="768" node_ref=canvas />
-        <Button variant=ButtonVariant::Outlined size={ButtonSize::Large} {..} on:click=capture>"Capture"</Button>
         <img alt="captured photo will appear here" node_ref=image />
     }
 }

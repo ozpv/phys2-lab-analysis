@@ -18,6 +18,10 @@ export default {
 			200: '#acb0be',
 		},
 		text: '#4c4f69',
+		subtext: {
+			default: '#5c5f77',
+			100: '#5c5f77',
+		},
     },
     fontFamily: {
 	},
