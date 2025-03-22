@@ -27,5 +27,6 @@ pub fn app() -> Router {
         .with_state(leptos_options)
         .layer(TraceLayer::new_for_http())
         .layer(CompressionLayer::new().br(true))
+        // timeout needs to exist for graceful shutdown
         .layer(TimeoutLayer::new(Duration::from_secs(30)))
 }

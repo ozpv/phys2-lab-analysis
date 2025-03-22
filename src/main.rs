@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 use phys2_lab_analysis::routes::app;
+use tokio::signal;
 
 #[tokio::main]
 async fn main() {
@@ -20,6 +21,33 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     tracing::info!("listening on http://{}", &addr);
     axum::serve(listener, app.into_make_service())
+        .with_graceful_shutdown(shutdown_signal())
         .await
         .unwrap();
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .inspect_err(|_| tracing::error!("failed to install ctrl-c handler"))
+            .unwrap();
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .inspect_err(|_| tracing::error!("failed to install signal handler"))
+            .unwrap()
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        () = ctrl_c => { tracing::info!("recieved ctrl-c") },
+        () = terminate => {},
+    }
 }

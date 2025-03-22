@@ -10,7 +10,7 @@ pub fn DialogWindow(
     /// title of the dialog window
     #[prop(into)]
     title: String,
-    /// if the dialog includes a close button at the top right
+    /// if the dialog should include a close button at the bottom and top right
     #[prop(default = true)]
     close_button: bool,
     /// function to run in the browser on dialog close
@@ -43,7 +43,7 @@ pub fn DialogWindow(
 
     view! {
         <div tabindex="-1"
-            class="fixed inset-0 flex flex-row justify-center items-center bg-crust bg-opacity-60 max-h-full
+            class="fixed inset-0 flex flex-row justify-center items-center bg-text bg-opacity-20 backdrop-blur-sm max-h-full
                 w-full h-full z-50 overflow-x-hidden overflow-y-auto"
             class:hidden=status
             node_ref=outer_dialog

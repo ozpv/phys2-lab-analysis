@@ -31,11 +31,11 @@ enum ImageUploadError {
 pub async fn upload_image(data: MultipartData) -> Result<(), ServerFnError> {
     let mut data = data.into_inner().ok_or(ImageUploadError::Client)?;
 
-    // check if the file is a valid size and format
     let headers = extract::<HeaderMap>()
         .await
         .map_err(|_| ImageUploadError::MissingHeaders)?;
 
+    // check for valid content length
     let content_length = headers
         .get(CONTENT_LENGTH)
         .ok_or(ImageUploadError::MissingHeaders)
@@ -49,15 +49,14 @@ pub async fn upload_image(data: MultipartData) -> Result<(), ServerFnError> {
         .inspect_err(|_| {
             expect_context::<ResponseOptions>().set_status(StatusCode::BAD_REQUEST);
         })?;
-
     if content_length >= 10_000_000 {
         expect_context::<ResponseOptions>().set_status(StatusCode::BAD_REQUEST);
         return Err(ImageUploadError::InvalidFile.into());
     }
 
     while let Ok(Some(mut field)) = data.next_field().await {
+        // check for valid content type
         let content_type = field.content_type();
-
         if content_type.is_none_or(|s| !s.to_string().starts_with("image")) {
             expect_context::<ResponseOptions>().set_status(StatusCode::BAD_REQUEST);
             return Err(ImageUploadError::InvalidFile.into());
@@ -72,7 +71,8 @@ pub async fn upload_image(data: MultipartData) -> Result<(), ServerFnError> {
         );
         let path = PathBuf::new().join(site_root.to_string()).join(file_name);
 
-        tracing::info!("Uploading file {}", path.display());
+        // write the file
+        tracing::info!("writing file to {}", path.display());
 
         let mut file = File::options()
             .create(true)
@@ -87,6 +87,8 @@ pub async fn upload_image(data: MultipartData) -> Result<(), ServerFnError> {
                 .map_err(|_| ImageUploadError::Internal)?;
         }
     }
+
+    expect_context::<ResponseOptions>().set_status(StatusCode::ACCEPTED);
 
     Ok(())
 }

@@ -22,7 +22,7 @@ tracing-subscriber = { version = "0.3.19", optional = true }
 console_error_panic_hook = "0.1"
 leptos_axum = { version = "0.7.0", optional = true }
 leptos_meta = { version = "0.7.0" }
-tokio = { version = "1", features = ["process", "rt-multi-thread"], optional = true }
+tokio = { version = "1", features = ["process", "rt-multi-thread", "signal"], optional = true }
 tower = { version = "0.5", optional = true }
 tower-http = { version = "0.6", features = ["compression-br", "fs", "timeout", "trace"], optional = true }
 thiserror = { version = "2", optional = true }
@@ -39,7 +39,7 @@ server_fn = { version = "0.7.4", features = ["multipart", "serde-lite"] }
 plotters = "0.3.7"
 plotters-canvas = "0.3.0"
 leptos_icons = "0.5.0"
-web-sys = { version = "0.3.77", features = ["CanvasRenderingContext2d", "MediaDevices", "MediaStream", "MediaStreamConstraints", "Navigator"] }
+web-sys = { version = "0.3.77", features = ["CanvasRenderingContext2d", "MediaDevices", "MediaStream", "MediaStreamConstraints", "Navigator", "DataTransfer", "FileList", "File", "Element", "DomTokenList", "CssStyleDeclaration"] }
 icondata = "0.5.0"
 
 [features]
